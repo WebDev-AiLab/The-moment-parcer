@@ -53,25 +53,26 @@ while n < max_page:
                     # Получаем картинки
                     print("Получаем картинки статьи")
                     for img in single_post_soup.find_all('img', src=True):
-                        print("rer")
                         img_url = img['src']
-                        print(img_url)
                         if img_url == "https://the-moment.ru/wp-content/uploads/2018/10/shapka_sayta_35.png":
                             pass
-
                         else:
-                            print(img_url)
-                            imagelinks = []
-                            #
-                            # for img in soup.find_all('img', src=True, ):
-                            #     imagelinks.append(img_url)
-                            #     download_images(imagelinks)
-                        break
-                print(url_a)
+                            if img_url == None:
+                                print('Картинок нет')
+                            else:
+                                print(img_url)
+                                imagelinks = []
+
+                                for img in soup.find_all('img', src=True, ):
+                                    imagelinks.append(img_url)
+                                    download_images(imagelinks)
+                                break
+                print(f'все данные взяты с данной страниы {single_post_url}')
 
     print("Получаем картинки с главной страницы")
     for img in soup.find_all('img', src=True):
         img_url = img['src']
+
         if img_url == "https://the-moment.ru/wp-content/uploads/2018/10/shapka_sayta_35.png":
             pass
         else:
