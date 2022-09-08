@@ -2,8 +2,6 @@ from bs4 import BeautifulSoup
 import requests
 import os
 
-n = 1
-max_page = 2
 
 
 def download_images(imagelinks):
@@ -18,68 +16,40 @@ def download_images(imagelinks):
     with open(imagename, 'wb') as file:
         file.write(response.content)
 
-# Check connect
-# print(page.status_code)
+
+# Получаем адрес страницы 
+page = requests.get(f'https://the-moment.ru/sitemap.html')
+soup = BeautifulSoup(page.text, 'lxml')
+
+print("Получаем ссылки")
+
+#заходим в каждый "отдел" где посты рассортированы по месяцам
+for posts_in_month in soup.select('td > a')[1::]:
+    response = requests.get(posts_in_month['href'])
+    soup = BeautifulSoup(response.text, 'lxml')
+
+    #вытаскиваем пост из каждого месяца
+    for post in soup.select('td > a'):
+        print(f"{post['href']}\n\n")
 
 
-while n < max_page:
-    # Получаем адрес страниц
-    url = f'https://the-moment.ru/page/{n}'
-    page = requests.get(url)
-    soup = BeautifulSoup(page.text, 'lxml')
 
-    print("Получаем ссылки")
-    for el in soup.select(".post-card "):
-    # Получаем url страниц
-        for url in soup.find_all('a', href=True):
-            url_a = url['href']
-            # Скипаем все категории ( по длине )
-            if len(url_a) <= 49:
-                pass
-            else:
-                # Парсим отдельную страницу
-                single_post_url = url_a
-                single_post_page = requests.get(single_post_url)
-                single_post_soup = BeautifulSoup(single_post_page.text, 'lxml')
-                # Получаем заголовок
-                for elem in (single_post_soup.select(".site-content > .site-content-inner > .content-area > .site-main > article")):
-                    print('Получаем заголовок статьи')
-                    title = elem.select(".entry-header > h1")
-                    print(title[0].text)
-                    # получаем текст статьи
-                    print('Получаем текст статьи')
-                    text = elem.select(".entry-content")
-                    print(text[0].text)
-                    # Получаем картинки
-                    print("Получаем картинки статьи")
-                    for img in single_post_soup.find_all('img', src=True):
-                        img_url = img['src']
-                        if img_url == "https://the-moment.ru/wp-content/uploads/2018/10/shapka_sayta_35.png":
-                            pass
-                        else:
-                            if img_url == None:
-                                print('Картинок нет')
-                            else:
-                                print(img_url)
-                                imagelinks = []
+        #всё что находится ниже надо доработать 
+        for elem in (single_post_soup.select(".site-content > .site-content-inner > .content-area > .site-main > article > .post-cards post-cards--grid")):
+            print('Получаем заголовок статьи')
+            title = elem.select(".entry-header > h1")
+            print(title[0].text)
+            # получаем текст статьи
+            print('Получаем текст статьи')
+            text = elem.select(".entry-content")
+            print(text[0].text)
+            # Получаем картинки
+            print("Получаем картинки статьи")
 
-                                for img in soup.find_all('img', src=True, ):
-                                    imagelinks.append(img_url)
-                                    download_images(imagelinks)
-                                break
-                print(f'все данные взяты с данной страниы {single_post_url}')
-
-    print("Получаем картинки с главной страницы")
-    for img in soup.find_all('img', src=True):
-        img_url = img['src']
-
-        if img_url == "https://the-moment.ru/wp-content/uploads/2018/10/shapka_sayta_35.png":
-            pass
-        else:
-            print(img_url)
             imagelinks = []
-            for img in soup.find_all('img', src=True, ):
-                imagelinks.append(img_url)
-                download_images(imagelinks)
+            for img in single_post_soup.find_all('img', src=True, ):
+                print(img['src'])
 
-    n += 1
+                imagelinks.append(img['src'])
+                download_images(imagelinks)
+        print(f'все данные взяты с данной страниы {single_post_url}')
