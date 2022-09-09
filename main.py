@@ -1,8 +1,5 @@
 from bs4 import BeautifulSoup
-import requests
-import os
-import random
-import csv
+import requests, os, random, csv, shutil
 
 
 def download_images(imagelinks):
@@ -70,7 +67,7 @@ for posts_in_month in soup.select('td > a')[1::]:
                         if os.path.isfile(os.path.join(path, x))
                     ])
                     # Перемещаем её в папку с основными картинками
-                    os.replace(f"random_img/{filename}", f"images/{filename}")
+                    shutil.copy(f"random_img/{filename}", f"images/{filename}")
                     # Открываем и записываем данные в csv
                     with open('out.csv', mode='a', encoding='utf-8') as w_file:
                         file_writer = csv.writer(w_file, delimiter=";", lineterminator="\r")
