@@ -1,0 +1,8 @@
+"Traceback (most recent call last):
+  File ""c:\Users\shahz\OneDrive\Desktop\TheMoment\The-moment-parcer\main.py"", line 56, in <module>
+    print('отправка данных', img['src'], end=""\n\n\n"")
+NameError: name 'img' is not defined
+
+";date: <built-in method now of type object at 0x00007FFC16350CD0>
+
+
