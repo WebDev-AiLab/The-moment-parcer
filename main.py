@@ -61,12 +61,16 @@ with open(FILE_CSV_NAME, mode='r', encoding='utf-8') as r_file:
                 imagelinks = []
                 for img in elem.find_all('img', src=True, ):
                     print(f"{img['src']}\n\n")
-                    download_images(img['src'])
-                    json = {
-                        "title": f"{title[0].text}",
-                        "content": f"{text[0].text}",
-                    }
-                    print(json)
+                    imagelinks.append(img['src'])
+                    download_images(imagelinks)
+                    # download_images(img['src'])
+        
+                json = {
+                    "title": f"{title[0].text}",
+                    "content": f"{text[0].text}",
+                    "img": f"{imagelinks}"
+                }
+                print(json)
 
             # print(f"все данные взяты с данной страниы {post['href']}\n\n")
         except Exception as e:
