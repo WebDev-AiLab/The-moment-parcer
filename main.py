@@ -64,12 +64,14 @@ with open(FILE_CSV_NAME, mode='r', encoding='utf-8') as r_file:
                     imagelinks.append(img['src'])
                     download_images(imagelinks)
                     # download_images(img['src'])
-        
                 json = {
                     "title": f"{title[0].text}",
                     "content": f"{text[0].text}",
                     "img": f"{imagelinks}"
                 }
+                requests.post(url, data=json)
+                res = requests.get(url)
+                print(res)
                 print(json)
 
             # print(f"все данные взяты с данной страниы {post['href']}\n\n")
