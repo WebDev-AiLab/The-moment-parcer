@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import requests
 import csv
 import traceback
-
+from json import JSONDecodeError
 
 FILE_CSV_NAME = "in.csv"
 DIR = 'images'
@@ -53,15 +53,14 @@ with open(FILE_CSV_NAME, mode='r', encoding='utf-8') as r_file:
 
                         print("Получаем картинки статьи")
                         try:
-                            for img in elem.find_all('img', src=True, ):
-                                print(f"{img['src']}\n\n")
-                            
-                        except NameError:
-                            post_data(title[0].text, text[0].text, 'shorturl.at/cnuQS')
-
-                        else:
+                            img=elem.find_all('img', src=True, )[0]
+                            print(img)
+                            print(f"{img['src']}\n\n")
                             print('отправка данных', img['src'], end="\n\n\n")
                             post_data(title[0].text, text[0].text, img['src'])
+
+                        except (NameError,ValueError, JSONDecodeError,IndexError ):
+                            post_data(title[0].text, text[0].text, 'shorturl.at/cnuQS')
 
 
                 except Exception as e:
