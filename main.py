@@ -4,6 +4,7 @@ import requests
 import csv
 import traceback
 from json import JSONDecodeError
+from time import sleep
 
 FILE_CSV_NAME = "in.csv"
 DIR = 'images'
@@ -18,9 +19,11 @@ def post_data(title, content,image):
     'content' : content,
     'image': image
     }
-
+    sleep(1)
     response = requests.post(link, json=data)
     print(response, response.json())
+
+
 with open(FILE_CSV_NAME, mode='r', encoding='utf-8') as r_file:
     # Создаем объект reader, указываем символ-разделитель ","
     file_reader = csv.reader(r_file, delimiter=";", quotechar='|')
@@ -60,7 +63,7 @@ with open(FILE_CSV_NAME, mode='r', encoding='utf-8') as r_file:
                             post_data(title[0].text, text[0].text, img['src'])
 
                         except (NameError,ValueError, JSONDecodeError,IndexError ):
-                            post_data(title[0].text, text[0].text, 'shorturl.at/cnuQS')
+                            post_data(title[0].text, text[0].text, 'https://images.unsplash.com/photo-1551218808-94e220e084d2?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80')
 
 
                 except Exception as e:
