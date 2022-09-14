@@ -12,7 +12,7 @@ DIR = 'images'
 
 
 def post_data(title, content,image):
-    link = 'http://my-tips.ru/test'
+    link = 'http://127.0.0.1:8000/test'
 
     data = {
     'title' : title,
@@ -23,7 +23,7 @@ def post_data(title, content,image):
     response = requests.post(link, json=data)
 
     
-    print(response, response.status_code)
+    print(response, response.json())
 
 
 with open(FILE_CSV_NAME, mode='r', encoding='utf-8') as r_file:
@@ -45,15 +45,15 @@ with open(FILE_CSV_NAME, mode='r', encoding='utf-8') as r_file:
 
                 # print('Получаем текст статьи')
                 text = elem.select(".entry-content")
-                # print(f"{text[0].text}\n\n")
+                text = text[0].text.replace('\n', '\n\n\n')
+                # print(text)
 
                 print("Получаем картинки статьи")
                 try:
                     img=elem.find_all('img', src=True, )[0]
-                    print(img)
-                    print(f"{img['src']}\n\n")
-                    print('отправка данных', img['src'], end="\n\n\n")
-                    post_data(title[0].text, text[0].text, img['src'])
+                    print('отправка данных', img['src'], end="\n\n")
+
+                    post_data(title[0].text, text, img['src'])
 
                 except (NameError,ValueError, JSONDecodeError,IndexError ):
                     post_data(title[0].text, text[0].text, 'https://images.unsplash.com/photo-1551218808-94e220e084d2?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80')
