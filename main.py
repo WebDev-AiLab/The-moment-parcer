@@ -12,7 +12,7 @@ DIR = 'images'
 
 
 def post_data(title, content,image):
-    link = 'http://127.0.0.1:8000/test'
+    link = 'http://my-tips.ru/test'
 
     data = {
     'title' : title,
@@ -21,7 +21,9 @@ def post_data(title, content,image):
     }
     sleep(1)
     response = requests.post(link, json=data)
-    print(response, response.json())
+
+    
+    print(response, response.status_code)
 
 
 with open(FILE_CSV_NAME, mode='r', encoding='utf-8') as r_file:
@@ -30,44 +32,35 @@ with open(FILE_CSV_NAME, mode='r', encoding='utf-8') as r_file:
     for row in file_reader:
         url = row[0]
         print(row[0])
-
-
+        # Получаем адрес страницы
         page = requests.get(f'{(str(url))}')
         soup = BeautifulSoup(page.text, 'lxml')
+        # print(soup)
         print("Получаем ссылки")
-        #заходим в каждый "отдел" где посты рассортированы по месяцам
-        for posts_in_month in soup.select('td > a')[1::]:
-            response = requests.get(posts_in_month['href'])
-            soup = BeautifulSoup(response.text, 'lxml')
-            #вытаскиваем пост из каждого месяца
-            for post in soup.select('td > a'):
-                post_page = requests.get(post['href'])
-                post_soup = BeautifulSoup(post_page.text, 'lxml')
-                print(f"{post['href']}\n\n")
+        try:
+            for elem in (soup.select(".site-content > .site-content-inner > .content-area > .site-main > article")):
+                print('Получаем заголовок статьи')
+                title = elem.select(".entry-header > h1")
+                # print(f'{title[0].text}\n\n')
+
+                # print('Получаем текст статьи')
+                text = elem.select(".entry-content")
+                # print(f"{text[0].text}\n\n")
+
+                print("Получаем картинки статьи")
                 try:
-                    for elem in (post_soup.select(".site-content > .site-content-inner > .content-area > .site-main > article")):
-                        print('Получаем заголовок статьи')
-                        title = elem.select(".entry-header > h1")
-                        # print(f'{title[0].text}\n\n')
+                    img=elem.find_all('img', src=True, )[0]
+                    print(img)
+                    print(f"{img['src']}\n\n")
+                    print('отправка данных', img['src'], end="\n\n\n")
+                    post_data(title[0].text, text[0].text, img['src'])
 
-                        # print('Получаем текст статьи')
-                        text = elem.select(".entry-content")
-                        # print(f"{text[0].text}\n\n")
-
-                        print("Получаем картинки статьи")
-                        try:
-                            img=elem.find_all('img', src=True, )[0]
-                            print(img)
-                            print(f"{img['src']}\n\n")
-                            print('отправка данных', img['src'], end="\n\n\n")
-                            post_data(title[0].text, text[0].text, img['src'])
-
-                        except (NameError,ValueError, JSONDecodeError,IndexError ):
-                            post_data(title[0].text, text[0].text, 'https://images.unsplash.com/photo-1551218808-94e220e084d2?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80')
+                except (NameError,ValueError, JSONDecodeError,IndexError ):
+                    post_data(title[0].text, text[0].text, 'https://images.unsplash.com/photo-1551218808-94e220e084d2?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80')
 
 
-                except Exception as e:
-                    print(traceback.format_exc())
-                    with open('log.txt', mode='a', encoding='utf-8') as w_file:
-                        file_writer = csv.writer(w_file, delimiter=";", lineterminator="\r")
-                        file_writer.writerow([f"{traceback.format_exc()}\n", f'date: {datetime.datetime.now}\n\n'])
+        except Exception as e:
+            print(traceback.format_exc())
+            with open('log.txt', mode='a', encoding='utf-8') as w_file:
+                file_writer = csv.writer(w_file, delimiter=";", lineterminator="\r")
+                file_writer.writerow([f"{traceback.format_exc()}\n", f'date: {datetime.datetime.now}\n\n'])
