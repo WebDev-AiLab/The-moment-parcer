@@ -14,7 +14,7 @@ DIR = 'images'
 
 def post_data(title, content, image, slug):
 
-    link = 'http://127.0.0.1:8000/test' # ссылка на сайт на который всё данные будут поститься
+    link = 'https://my-tips.ru/test' # ссылка на сайт на который всё данные будут поститься
 
     data = {
     'title' : title,
@@ -22,7 +22,7 @@ def post_data(title, content, image, slug):
     'image': image,
     'slug' : slug,
     }
-    print(data, end='\n\n\n')
+    # print(data, end='\n\n\n')
     sleep(1) #добавил таймер на 1 секунду чтобы парсер не уронил сайт 
     response = requests.post(link, json=data)
 
@@ -60,7 +60,7 @@ with open(FILE_CSV_NAME, mode='r', encoding='utf-8') as r_file:
                     img=elem.find_all('img', src=True, )[0]
                     print('отправка данных', img['src'], end="\n\n")
 
-                    # post_data(title[0].text, "".join(clean_content), img['src'], slug)
+                    post_data(title[0].text, "".join(clean_content), img['src'], slug)
                 except (NameError,ValueError, JSONDecodeError,IndexError ):
                     # В случае если на сайте нету фотографии, фотография будет заменена другой.
                     # ССылка  указана ниже, если она перестанет работать просто замените её
