@@ -5,20 +5,22 @@ import csv
 import traceback
 from json import JSONDecodeError, dumps
 from time import sleep
+from pytils.translit import slugify
 
 FILE_CSV_NAME = "in.csv"
 DIR = 'images'
 
 
 
-def post_data(title, content,image):
+def post_data(title, content, image, slug):
 
-    link = 'http://127.0.0.1:8000/test' # ссылка на сайт на который всё данные будут поститься
+    link = 'https://my-tips.ru/test' # ссылка на сайт на который всё данные будут поститься
 
     data = {
     'title' : title,
     'content' : content,
-    'image': image
+    'image': image,
+    'slug' : slug,
     }
 
     sleep(1) #добавил таймер на 1 секунду чтобы парсер не уронил сайт 
@@ -42,17 +44,23 @@ with open(FILE_CSV_NAME, mode='r', encoding='utf-8') as r_file:
             for elem in (soup.select(".site-content > .site-content-inner > .content-area > .site-main > article")):
                 print('Получаем заголовок статьи')
                 title = elem.select(".entry-header > h1")
+                slug = slugify(title)
                 content = list(elem.select(".entry-content")[0]) # достаю весь контент статьи включая теги после чего закидываю их в список 
                 for tag in content: # удаляю теги которые мне не нужны в этом случае все теги которые содержат фотографии
-                    if 'itemprop' in str(tag):
-                        content.remove(tag)
+                    for i in ['itemprop', 'table-of-contents open']:
+                        if i in str(tag):
+                            content.remove(tag)
+
                 clean_content = [str(data) for data in content] #конвертирую все теги в строку чтобы потом мог всё это запушить на бэк
+                
                 print("Получаем картинки статьи")
+
+
                 try:
                     img=elem.find_all('img', src=True, )[0]
                     print('отправка данных', img['src'], end="\n\n")
 
-                    post_data(title[0].text, "".join(clean_content), img['src'])
+                    post_data(title[0].text, "".join(clean_content), img['src'], slug)
                 except (NameError,ValueError, JSONDecodeError,IndexError ):
                     # В случае если на сайте нету фотографии, фотография будет заменена другой.
                     # ССылка  указана ниже, если она перестанет работать просто замените её
