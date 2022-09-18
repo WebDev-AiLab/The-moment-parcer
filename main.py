@@ -5,25 +5,25 @@ import csv
 import traceback
 from json import JSONDecodeError, dumps
 from time import sleep
-from pytils.translit import slugify
+
 
 FILE_CSV_NAME = "in.csv"
 DIR = 'images'
 
 
 
-def post_data(title, content, image, slug):
+def post_data(title, content, image, ):
 
-    link = 'https://my-tips.ru/test' # ссылка на сайт на который всё данные будут поститься
+    link = 'http://62.113.99.151:1337/test' # ссылка на сайт на который всё данные будут поститься
 
     data = {
     'title' : title,
     'content' : content,
     'image': image,
-    'slug' : slug,
+
     }
-    # print(data, end='\n\n\n')
-    sleep(1) #добавил таймер на 1 секунду чтобы парсер не уронил сайт 
+    sleep(1) #добавил таймер на 1 секунду чтобы парсер не уронил сайт
+    print(f'{data}\n\n\n')
     response = requests.post(link, json=data)
 
 
@@ -44,8 +44,8 @@ with open(FILE_CSV_NAME, mode='r', encoding='utf-8') as r_file:
             for elem in (soup.select(".site-content > .site-content-inner > .content-area > .site-main > article")):
                 print('Получаем заголовок статьи')
                 title = elem.select(".entry-header > h1")
-                slug = slugify(title)
-                content = list(elem.select(".entry-content")[0]) # достаю весь контент статьи включая теги после чего закидываю их в список 
+
+                content = list(elem.select(".entry-content")[0]) # достаю весь контент статьи включая теги после чего закидываю их в список
                 for tag in content: # удаляю теги которые мне не нужны в этом случае все теги которые содержат фотографии
                     for i in ['itemprop', 'table-of-contents open', 'box fact clearfix', 'toc empty']:
                         if i in str(tag):
@@ -54,19 +54,20 @@ with open(FILE_CSV_NAME, mode='r', encoding='utf-8') as r_file:
                 clean_content = [str(data) for data in content] #конвертирую все теги в строку чтобы потом мог всё это запушить на бэк
 
                 print("Получаем картинки статьи")
-                # print(slug, end='\n\n\n')
+
 
                 try:
                     img=elem.find_all('img', src=True, )[0]
                     print('отправка данных', img['src'], end="\n\n")
 
-                    post_data(title[0].text, "".join(clean_content), img['src'], slug)
+                    post_data(title[0].text, "".join(clean_content), img['src'], )
                 except (NameError,ValueError, JSONDecodeError,IndexError ):
                     # В случае если на сайте нету фотографии, фотография будет заменена другой.
                     # ССылка  указана ниже, если она перестанет работать просто замените её
                     # ССылкой на другое фото
-                    
-                    post_data(title[0].text, "".join(clean_content), 'https://images.unsplash.com/photo-1551218808-94e220e084d2?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80', slug )
+                    image = 'https://images.unsplash.com/photo-1551218808-94e220e084d2?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80'
+
+                    post_data(title[0].text, "".join(clean_content), image,  )
 
 
         except Exception as e:
