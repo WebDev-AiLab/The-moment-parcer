@@ -28,6 +28,7 @@ def post_data(title, content, image, ):
         file_writer = csv.writer(w_file, delimiter=";", lineterminator="\r")
         file_writer.writerow([f"{data} \n\n\n"])
 
+    sleep(2)
     response = requests.post(link, json=data)
 
     print(response, response.json(), end='\n\n\n')
