@@ -51,9 +51,10 @@ with open(FILE_CSV_NAME, mode='r', encoding='utf-8') as r_file:
 
                 content = list(elem.select(".entry-content")[0]) # достаю весь контент статьи включая теги после чего закидываю их в список
                 for tag in content: # удаляю теги которые мне не нужны в этом случае все теги которые содержат фотографии
-                    for i in ['table-of-contents open', 'box fact clearfix', 'toc empty',]:
+                    for i in ['table-of-contents open', 'box fact clearfix', 'toc empty', 'a href=']:
                         if i in str(tag):
                             content.remove(tag)
+
 
                 clean_content = [str(data) for data in content] #конвертирую все теги в строку чтобы потом мог всё это запушить на бэк
                 
@@ -74,8 +75,13 @@ with open(FILE_CSV_NAME, mode='r', encoding='utf-8') as r_file:
                         x for x in os.listdir(path)
                         if os.path.isfile(os.path.join(path, x))
                     ])
-
-                    post_data(title[0].text, "".join(clean_content), filename,  )
+                    with open('url_image.csv', 'r', newline='') as csvfile:
+                        spamreader = csv.reader(csvfile, delimiter=';', quotechar='|')
+                        url_image_moment = []
+                        for row in spamreader:
+                            url_image_moment.append(row)
+                        
+                    post_data(title[0].text, "".join(clean_content), random.choice(url_image_moment),  )
 
 
         except Exception as e:
