@@ -24,13 +24,11 @@ def post_data(title, content, image, ):
 
     }
     # sleep(1) #добавил таймер на 1 секунду чтобы парсер не уронил сайт
-    with open('out.csv', 'a+', encoding='utf-8') as w_file:
-        file_writer = csv.writer(w_file, delimiter=";", lineterminator="\r")
-        file_writer.writerow([f"{data} \n\n\n"])
 
-    sleep(2)
+
     response = requests.post(link, json=data)
 
+    sleep(1)
     print(response, response.json(), end='\n\n\n')
 
 
@@ -38,7 +36,6 @@ with open(FILE_CSV_NAME, mode='r', encoding='utf-8') as r_file:
     file_reader = csv.reader(r_file, delimiter=";", quotechar='|') # Достаём ссылку из файла после чего конвертируем её в строку
     for row in file_reader:
         url = row[0]
-        print(row[0])
 
 
         page = requests.get(url)
@@ -52,13 +49,17 @@ with open(FILE_CSV_NAME, mode='r', encoding='utf-8') as r_file:
 
                 content = list(elem.select(".entry-content")[0]) # достаю весь контент статьи включая теги после чего закидываю их в список
                 for tag in content: # удаляю теги которые мне не нужны в этом случае все теги которые содержат фотографии
-                    for i in ['table-of-contents open', 'box fact clearfix', 'toc empty', 'a href=']:
+                    for i in ['table-of-contents open', 'box fact clearfix', 'toc empty',]:
                         if i in str(tag):
                             content.remove(tag)
 
+                for tag in content: # удаляю теги которые мне не нужны в этом случае все теги которые содержат фотографии
+                    for i in ['a href']:
+                        if i in str(tag):
+                            content.remove(tag)
 
                 clean_content = [str(data) for data in content] #конвертирую все теги в строку чтобы потом мог всё это запушить на бэк
-                
+
                 print("Получаем картинки статьи")
 
 
@@ -77,11 +78,12 @@ with open(FILE_CSV_NAME, mode='r', encoding='utf-8') as r_file:
                         url_image_moment = []
                         for row in spamreader:
                             url_image_moment.append(row)
-                        
-                    post_data(title[0].text, "".join(clean_content), random.choice(url_image_moment),  )
+
+
+                    post_data(title[0].text, "".join(clean_content), random.choice(url_image_moment)[0],  )
 
 
         except Exception as e:
             with open('log.txt', mode='a', encoding='utf-8') as w_file:
                 file_writer = csv.writer(w_file, delimiter=";", lineterminator="\r")
-                file_writer.writerow([f"{traceback.format_exc()}\n", f'page: {url}\n\n'])
+                file_writer.writerow([f"{traceback.format_exc()}\n", f'page: {url}\n\n',])
