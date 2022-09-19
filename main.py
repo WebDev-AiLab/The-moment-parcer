@@ -71,11 +71,7 @@ with open(FILE_CSV_NAME, mode='r', encoding='utf-8') as r_file:
                     # В случае если на сайте нету фотографии, фотография будет заменена другой.
                     # ССылка  указана ниже, если она перестанет работать просто замените её
                     # ССылкой на другое фото
-                    path = r"images"
-                    filename = random.choice([
-                        x for x in os.listdir(path)
-                        if os.path.isfile(os.path.join(path, x))
-                    ])
+
                     with open('url_image.csv', 'r', newline='') as csvfile:
                         spamreader = csv.reader(csvfile, delimiter=';', quotechar='|')
                         url_image_moment = []
