@@ -13,22 +13,21 @@ DIR = 'images'
 
 
 
-def post_data(title, content, image, ):
+def post_data(title, content, image, img_list ):
 
-    link = 'https://my-tips.ru/test' # ссылка на сайт на который всё данные будут поститься
+    link = 'https://my-tips.ru/create' # ссылка на сайт на который всё данные будут поститься
 
     data = {
     'title' : title,
     'content' : content,
     'image': image,
-
+    'img_list' : img_list,
     }
     # sleep(1) #добавил таймер на 1 секунду чтобы парсер не уронил сайт
 
 
     response = requests.post(link, json=data)
 
-    sleep(1)
     print(response, response.json(), end='\n\n\n')
 
 
@@ -49,12 +48,7 @@ with open(FILE_CSV_NAME, mode='r', encoding='utf-8') as r_file:
 
                 content = list(elem.select(".entry-content")[0]) # достаю весь контент статьи включая теги после чего закидываю их в список
                 for tag in content: # удаляю теги которые мне не нужны в этом случае все теги которые содержат фотографии
-                    for i in ['table-of-contents open', 'box fact clearfix', 'toc empty',]:
-                        if i in str(tag):
-                            content.remove(tag)
-
-                for tag in content: # удаляю теги которые мне не нужны в этом случае все теги которые содержат фотографии
-                    for i in ['a href']:
+                    for i in ['box fact clearfix', 'toc empty',]:
                         if i in str(tag):
                             content.remove(tag)
 
@@ -62,12 +56,17 @@ with open(FILE_CSV_NAME, mode='r', encoding='utf-8') as r_file:
 
                 print("Получаем картинки статьи")
 
-
                 try:
-                    img=elem.find_all('img', src=True, )[0]
-                    print('отправка данных', img['src'], end="\n\n")
-                    print(img['src'])
-                    post_data(title[0].text, "".join(clean_content), img['src'], )
+                    img_list = []
+                    img=elem.find_all('img', src=True, )
+                    for i in img:
+                        img_list.append(i['src'])
+                    print('отправка данных', end="\n\n")
+                    print('============================================')
+
+                    post_data(title[0].text, "".join(clean_content), img[0]['src'], img_list)
+
+
                 except (NameError,ValueError, JSONDecodeError,IndexError ):
                     # В случае если на сайте нету фотографии, фотография будет заменена другой.
                     # ССылка  указана ниже, если она перестанет работать просто замените её
@@ -79,8 +78,8 @@ with open(FILE_CSV_NAME, mode='r', encoding='utf-8') as r_file:
                         for row in spamreader:
                             url_image_moment.append(row)
 
-
-                    post_data(title[0].text, "".join(clean_content), random.choice(url_image_moment)[0],  )
+                    print('============================================')
+                    post_data(title[0].text, "".join(clean_content), random.choice(url_image_moment)[0], img_list)
 
 
         except Exception as e:
