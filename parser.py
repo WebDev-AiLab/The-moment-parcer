@@ -31,16 +31,13 @@ def find_data(lxml, soup):
         image = image_tag.xpath('.//img[@src]/@src')[0]
         image_list.append(image)
     
-
     context = {
         'title': str(title).strip("['']"),
-        'content': elems,
+        'content': str(elems).strip("['']"),
         'image': str(image).strip("['']"),
         'img_list' : image_list
     }
-    
-    for i in context.keys():
-        print(type(i))
+    print(context)
     response = requests.post(link, json=context)
     return response.status_code
 
