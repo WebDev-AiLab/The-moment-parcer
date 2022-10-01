@@ -47,25 +47,26 @@ class Parser():
                     try:
                         for element in (soup.select(".site-content > .site-content-inner > .content-area > .site-main "
                                                     "> article")):
-                            title = element.select(".entry-title > h1")
-                            print(title)
-                            content = list(element.select(".entry-content")[0])
-                            logging.info('We take the content of the post with the title: {}'.format(title))
-                            for tag in content:
-                                for delete in ['box fact clearfix', 'toc empty', ]:
-                                    if delete in str(tag):
-                                        content.remove(tag)
-                            clean_content = [str(data) for data in content]
-                            logging.info("Getting the post thumbnail image")
+                            # title = element.select(".entry-title > h1")
+                            # print(title)
+                            # content = list(element.select(".entry-content")[0])
+                            # logging.info('We take the content of the post with the title: {}'.format(title))
+                            # for tag in content:
+                            #     for delete in ['box fact clearfix', 'toc empty', ]:
+                            #         if delete in str(tag):
+                            #             content.remove(tag)
+                            # clean_content = [str(data) for data in content]
+                            # logging.info("Getting the post thumbnail image")
                             try:
                                 img_list = []
                                 img = element.find_all('img', src=True, )
                                 for i in img:
                                     img_list.append(i['src'])
-                                self.request_post(title[0].text,
-                                                  "".join(clean_content),
-                                                  img[0]['src'],
-                                                  img_list)
+                                print(img_list)
+                                # self.request_post(title[0].text,
+                                #                   "".join(clean_content),
+                                #                   img[0]['src'],
+                                #                   img_list)
                             except Exception as error:
                                 logging.critical(error)
                                 with open('url_image.csv', 'r', newline='') as csvfile:
@@ -73,11 +74,11 @@ class Parser():
                                     url_image_moment = []
                                     for rows in spam_reader:
                                         url_image_moment.append(rows)
-                                self.request_post(title[0].text, "".join(clean_content),
-                                                  random.choice(url_image_moment)[0],
-                                                  img_list)
+                                # self.request_post(title[0].text, "".join(clean_content),
+                                #                   random.choice(url_image_moment)[0],
+                                #                   img_list)
                     except Exception as error:
-                        logging.critical(f"Critical error: {error}")
+                        logging.warning(f"Critical error: {error}")
 
         except Exception as error:
-            logging.critical(error)
+            logging.warning(error)
