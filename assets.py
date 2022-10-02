@@ -32,7 +32,7 @@ class Parser():
         """
         context = {
             'title': str(self.title).strip("['']"),
-            'content': "".join(self.content),
+            'content': self.content,
             'image': str(self.image).strip("['']"),
             'img_list': self.image_list
         }
@@ -67,11 +67,14 @@ class Parser():
         self.image = self.lxml.xpath('/html/head/meta[@property="og:image"]/@content')
         content = list(self.soup.select('body article>.entry-content')[0])
         for tag in content:
-            for delete in ['box fact clearfix', 'toc empty', ]:
+            for delete in ['box fact clearfix', 'toc empty',]:
                 if delete in str(tag):
                     content.remove(tag)
         self.content = [str(data) for data in content if data != str]
 
+        print(self.content)
+
+        #проверка ссылки фотографии
         if len(self.image) == 0:
             with open('url_image.csv', 'r', newline='') as csvfile:
                 file_reader = csv.reader(csvfile, delimiter=';', quotechar='|')
