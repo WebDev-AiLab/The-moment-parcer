@@ -4,7 +4,8 @@ from lxml import html
 import config
 from bs4 import BeautifulSoup
 import requests
-
+from urllib3.exceptions import InsecureRequestWarning
+from urllib3 import disable_warnings
 FILE_CSV_NAME = 'in.csv'
 
 link = 'http://127.0.0.1:8000/create'
