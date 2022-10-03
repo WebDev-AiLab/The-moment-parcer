@@ -30,6 +30,7 @@ class Parser():
         :param img_list: Список фото из поста
         :return:
         """
+        print(self.image_list)
         context = {
             'title': str(self.title).strip("['']"),
             'content': self.content,
@@ -38,7 +39,7 @@ class Parser():
         }
 
         response = requests.post(self.link, json=context)
-        return response.status_code
+        print(response.status_code)
 
     def get_images(self, ):
         """
@@ -47,10 +48,13 @@ class Parser():
         :param content: Содержит элементы html в котором находятся фотографии
         :param image_list: Переменная класса которая содержит список фотографий(ссылки)
         """
-        content = self.lxml.xpath('//span[@itemprop="image"]')
-        if len(content) != 0:
-            for image_tag in content:
-                self.image_list.append(image_tag.xpath('.//img[@src]/@src')[0])
+        content = self.soup
+        image_list = content[0].find_all('img', src=True)
+        for image_tag in image_list:
+            image_link = str(image_tag['src'])
+            delete_image = '//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_red_28.png'
+            if delete_image not in image_link:
+                self.image_list.append(image_link)
 
     def get_data(self):
         """
@@ -65,16 +69,17 @@ class Parser():
          """
         self.title = self.lxml.xpath('/html/head/title/text()')[0]
         self.image = self.lxml.xpath('/html/head/meta[@property="og:image"]/@content')
-        content = list(self.soup.select('body article>.entry-content')[0])
+        self.soup = self.soup.select('body article>.entry-content')
+        content = list(self.soup[0])
+        print(content, end='\n\n\n\n\n')
         for tag in content:
-            for delete in ['box fact clearfix', 'toc empty',]:
+            for delete in ['box fact clearfix', 'toc empty', 'data-pin-do=', ]:
                 if delete in str(tag):
                     content.remove(tag)
+        print(content)
         self.content = [str(data) for data in content if data != str]
 
-        print(self.content)
-
-        #проверка ссылки фотографии
+        # проверка ссылки фотографии
         if len(self.image) == 0:
             with open('url_image.csv', 'r', newline='') as csvfile:
                 file_reader = csv.reader(csvfile, delimiter=';', quotechar='|')
@@ -105,4 +110,5 @@ class Parser():
                     self.image_list.clear()
 
         except Exception as error:
+            raise error
             logging.warning(error)
