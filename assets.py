@@ -76,7 +76,7 @@ class Parser():
             for delete in ['box fact clearfix', 'toc empty', 'data-pin-do=', ]:
                 if delete in str(tag):
                     content.remove(tag)
-        print(content)
+
         self.content = [str(data) for data in content if data != str]
 
         # проверка ссылки фотографии
@@ -110,5 +110,4 @@ class Parser():
                     self.image_list.clear()
 
         except Exception as error:
-            raise error
             logging.warning(error)
