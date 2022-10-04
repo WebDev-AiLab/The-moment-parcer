@@ -30,16 +30,26 @@ class Parser():
         :param img_list: Список фото из поста
         :return:
         """
-        print(self.image_list)
         context = {
-            'title': str(self.title).strip("['']"),
+            'title': self.title,
             'content': self.content,
             'image': str(self.image).strip("['']"),
             'img_list': self.image_list
         }
 
         response = requests.post(self.link, json=context)
-        print(response.status_code)
+        print(response.json(), response.status_code)
+
+    def clean_title(self):
+        """
+        ООП МЕТОД #2: Используется для того чтобы очистить заголовок от не нужных фраз
+        param to_delete: Содержит список фраз которые должны удалиться из заголовка
+        """
+        to_delete = ['- TUDAY.ru', '- Фейков нет', '- WorkingHard', '- KZNPORTAL.RU', '- Shturmuy.ru', '- Уроки по Lightroom и Photoshop']
+        self.title = str(self.title).strip("['']")
+        for item in to_delete:
+            if item in self.title:
+                self.title = self.title.replace(item, '')
 
     def get_images(self, ):
         """
@@ -71,7 +81,6 @@ class Parser():
         self.image = self.lxml.xpath('/html/head/meta[@property="og:image"]/@content')
         self.soup = self.soup.select('body article>.entry-content')
         content = list(self.soup[0])
-        print(content, end='\n\n\n\n\n')
         for tag in content:
             for delete in ['box fact clearfix', 'toc empty', 'data-pin-do=', ]:
                 if delete in str(tag):
@@ -106,6 +115,7 @@ class Parser():
                     logging.info('Get link: {}'.format(urls))
                     self.get_data()
                     self.get_images()
+                    self.clean_title()
                     self.request_post()
                     self.image_list.clear()
 
