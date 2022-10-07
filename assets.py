@@ -88,7 +88,7 @@ class Parser():
         self.soup = self.soup.select('body article>.entry-content')
         content = list(self.soup[0])
         for tag in content:
-            for delete in ['box fact clearfix', 'toc empty', 'data-pin-do=', ]:
+            for delete in ['box fact clearfix', 'toc empty', 'data-pin-do=']:
                 if delete in str(tag):
                     content.remove(tag)
         self.content = [str(data) for data in content if data != str]

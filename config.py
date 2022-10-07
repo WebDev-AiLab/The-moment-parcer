@@ -2,18 +2,24 @@ import logging
 
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
-text = """
-Which site should be robbed?:
-1) https://femmida.ru/
-2) https://workinghard.ru/
-3) https://bllesk.ru/
-4) https://kachalka-24.ru/
-5) https://alenakraeva.com/
-6) https://adobe-master.ru/
-7) https://www.newsli.ru/
-8) https://news-mt.ru/
-9) https://tuday.ru/
-10) https://www.shturmuy.ru/
-11) https://kznportal.ru/
-12) https://the-moment.ru/
-"""
+list_delete = [
+    '1', '2', '3',
+    '4', '5', '6',
+    '7', '8', '9',
+    '10', '11', '12',
+    '13', '14', '15',
+    '16', '17', '18',
+    '19', '20', '21',
+    '22', '23', '24',
+    '25', '26', '27',
+    '28', '29', '30',
+    '31', 'Январь', 'Февраль',
+    'Март', 'Апрель', 'Май',
+    'Июнь', 'Июль', 'Август',
+    'Сентябрь', 'Октябрь', 'Ноябрь',
+    'Декабрь', '2020', '2021',
+    '2022', '2023', '2024',
+    'kznportal.ru', 'box fact clearfix', 'toc empty',
+    "data-pin-do='",
+]
+

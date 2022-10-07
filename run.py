@@ -1,4 +1,4 @@
 from assets import Parser
-link = input("Enter domain to publish post: ")
+link = 'https://my-tips.ru/create'
 pir = Parser(link, 'in.csv')
 pir.open_file()
