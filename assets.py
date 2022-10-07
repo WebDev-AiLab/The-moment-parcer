@@ -16,6 +16,7 @@ class Parser():
     content = ""
     image = ""
     image_list = []
+    random_image_url = []
 
     def __init__(self, link, FILE_CSV_NAME):
         self.link = link
@@ -30,13 +31,13 @@ class Parser():
         :param img_list: Список фото из поста
         :return:
         """
+        print(self.image_list)
         context = {
             'title': self.title,
             'content': self.content,
             'image': str(self.image).strip("['']"),
             'img_list': self.image_list
         }
-
         response = requests.post(self.link, json=context)
         print(response.json(), response.status_code)
 
@@ -60,11 +61,16 @@ class Parser():
         """
         content = self.soup
         image_list = content[0].find_all('img', src=True)
+
         for image_tag in image_list:
+            print(image_tag)
             image_link = str(image_tag['src'])
             delete_image = '//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_red_28.png'
             if delete_image not in image_link:
-                self.image_list.append(image_link)
+                if requests.get(image_link):
+                    self.image_list.append(image_link)
+                else:
+                    self.image_list.append(choice(self.random_image_url))
 
     def get_data(self):
         """
@@ -85,17 +91,15 @@ class Parser():
             for delete in ['box fact clearfix', 'toc empty', 'data-pin-do=', ]:
                 if delete in str(tag):
                     content.remove(tag)
-
         self.content = [str(data) for data in content if data != str]
 
-        # проверка ссылки фотографии
+        # проверка ссылки превью фотографии
         if len(self.image) == 0:
             with open('url_image.csv', 'r', newline='') as csvfile:
                 file_reader = csv.reader(csvfile, delimiter=';', quotechar='|')
-                image_url = []
                 for rows in file_reader:
-                    image_url.append(rows[0])
-                self.image = choice(image_url)
+                    self.random_image_url.append(rows[0])
+                self.image = choice(self.random_image_url)
 
     def open_file(self):
         """
