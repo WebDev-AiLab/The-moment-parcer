@@ -7,7 +7,7 @@ import logging
 import config
 import requests
 import csv
-
+import re 
 
 class Parser():
     lxml = ""
@@ -22,6 +22,14 @@ class Parser():
         self.link = link
         self.FILE_CSV_NAME = FILE_CSV_NAME
 
+
+    def collect_random_images(self):
+         with open('url_image.csv', 'r', newline='') as csvfile:
+                file_reader = csv.reader(csvfile, delimiter=';', quotechar='|')
+                for rows in file_reader:
+                    self.random_image_url.append(rows[0])
+
+
     def request_post(self, ):
         """
         ООП МЕТОД #1: Содержит атрибуты инициатора для post запроса в сайт
@@ -31,7 +39,6 @@ class Parser():
         :param img_list: Список фото из поста
         :return:
         """
-        print(self.image_list)
         context = {
             'title': self.title,
             'content': self.content,
@@ -63,14 +70,16 @@ class Parser():
         image_list = content[0].find_all('img', src=True)
 
         for image_tag in image_list:
-            print(image_tag)
             image_link = str(image_tag['src'])
             delete_image = '//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_red_28.png'
             if delete_image not in image_link:
-                if requests.get(image_link):
+                req = requests.get(image_link)
+                if req.status_code == 200:
                     self.image_list.append(image_link)
                 else:
-                    self.image_list.append(choice(self.random_image_url))
+                    random_image = choice(self.random_image_url)
+                    self.image_list.append(random_image)
+
 
     def get_data(self):
         """
@@ -95,10 +104,6 @@ class Parser():
 
         # проверка ссылки превью фотографии
         if len(self.image) == 0:
-            with open('url_image.csv', 'r', newline='') as csvfile:
-                file_reader = csv.reader(csvfile, delimiter=';', quotechar='|')
-                for rows in file_reader:
-                    self.random_image_url.append(rows[0])
                 self.image = choice(self.random_image_url)
 
     def open_file(self):
@@ -117,6 +122,7 @@ class Parser():
                     self.lxml = html.fromstring(page.content)
                     self.soup = BeautifulSoup(page.text, 'lxml')
                     logging.info('Get link: {}'.format(urls))
+                    self.collect_random_images()
                     self.get_data()
                     self.get_images()
                     self.clean_title()
